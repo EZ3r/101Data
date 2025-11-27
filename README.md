@@ -21,7 +21,7 @@ graph TD
             TransformTrain --> SlidingWindowTrain(滑动时间窗口构建序列 (T=150)):::process
             SlidingWindowTrain --> TrainSeqs[训练集序列数据 (N_train, 150, 78)]:::data
         end
-
+        
         FitScaler -. 保存 Scaler 参数 .-> ScalerModel[("已拟合 Scaler (用于后续转换)")]:::model
     end
 
@@ -30,7 +30,7 @@ graph TD
         TrainSeqs --> DefineAE(构建 LSTM-AE 网络结构 (Encoder-Decoder)):::process
         DefineAE --> TrainAE(模型训练 (目标函数: 最小化 MSE 重构误差)):::process
         TrainAE -- 训练完成 --> TrainedAE[("已训练 LSTM-AE 整体模型")]:::model
-
+        
         TrainedAE --> ExtractEncoder(提取 Encoder 部分 (作为特征提取器)):::process
         ExtractEncoder --> TrainedEncoder[("已提取 Encoder 模型")]:::model
     end
@@ -39,9 +39,9 @@ graph TD
     subgraph Phase3 [阶段三：GMM 建模与阈值设定]
         TrainSeqs -- 输入训练序列 --> EncoderInferTrain(使用 Encoder 进行推理/降维):::process
         TrainedEncoder -. 提供参数 .-> EncoderInferTrain
-
+        
         EncoderInferTrain -- 输出 --> LatentTrainVecs[训练集潜在向量 (N_train, Latent_Dim)]:::data
-
+        
         LatentTrainVecs --> InitGMM(初始化 GMM (e.g., n_components=4)):::process
         InitGMM --> FitGMM(GMM 模型拟合 (学习潜在空间的正常概率分布)):::process
         FitGMM -- 训练完成 --> TrainedGMM[("已训练 GMM 模型")]:::model
@@ -74,7 +74,7 @@ graph TD
 
         NewScores --> CompareThreshold{分数 < 阈值?}:::decision
         FinalThreshold -. 对比标准 .-> CompareThreshold
-
+        
         CompareThreshold -- Yes (Log-Likelihood过低) --> AnomalyDetected[判定为异常/故障前兆]:::output
         CompareThreshold -- No (位于高概率区域) --> NormalDetected[判定为正常]:::data
     end
